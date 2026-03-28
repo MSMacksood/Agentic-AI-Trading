@@ -1,1 +1,5 @@
 azure-functions
+yfinance
+pandas
+requests
+azure-storage-blob
