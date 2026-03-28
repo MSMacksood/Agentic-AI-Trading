@@ -29,15 +29,8 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Create and start virtual environment
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      # Optional: Add step to run tests here
+      # Notice we REMOVED the pip install and venv steps here.
+      # We only want to zip the raw code so Azure can build it natively.
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
@@ -49,6 +42,7 @@ jobs:
           path: |
             release.zip
             !venv/
+            !.git/
 
   deploy:
     runs-on: ubuntu-latest
@@ -82,4 +76,6 @@ jobs:
           app-name: 'trading-bot-v3'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          
+          # THE FIX: Tell Azure's internal engine (Oryx) to build the C-binaries natively
+          scm-do-build-during-deployment: true
+          enable-oryx-build: true
